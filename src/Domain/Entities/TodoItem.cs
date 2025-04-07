@@ -8,6 +8,8 @@ public class TodoItem : BaseAuditableEntity
 
     public string? Note { get; set; }
 
+    public Colour? BackgroundColour { get; set; }
+
     public PriorityLevel Priority { get; set; }
 
     public DateTime? Reminder { get; set; }
