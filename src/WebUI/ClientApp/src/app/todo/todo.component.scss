@@ -36,3 +36,57 @@
 .modal-footer {
   display: block;
 }
+
+.todo-item-tags {
+  margin-top: 4px;
+}
+
+.tag-list {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  padding: 3px 10px;
+  margin-right: 6px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  display: inline-block;
+  color: #fff;
+  cursor: pointer;
+}
+
+.tag-chip-selected {
+  color: #fff;
+}
+
+input.form-control-color {
+  width: 3rem;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tag-color-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.color-box.selected {
+  border: 3px solid #000;
+}
+
+.tag-label {
+  min-width: 100px;
+}
+
+.color-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
