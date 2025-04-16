@@ -5,6 +5,10 @@ using Todo_App.Application.TodoItems.Commands.DeleteTodoItem;
 using Todo_App.Application.TodoItems.Commands.UpdateTodoItem;
 using Todo_App.Application.TodoItems.Commands.UpdateTodoItemDetail;
 using Todo_App.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+using Todo_App.Application.TodoItems.Commands.AddTagToTodoItem;
+using Todo_App.Application.TodoItems.Commands.RemoveTagFromTodoItem;
+using Todo_App.Application.TodoItems.Queries.GetTagsOfTodoItem;
+using Todo_App.Application.Tags.Queries.GetTags;
 
 namespace Todo_App.WebUI.Controllers;
 
@@ -55,4 +59,26 @@ public class TodoItemsController : ApiControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("{id}/tags")]
+    public async Task<ActionResult> AddTag(int id, [FromBody] int tagId)
+    {
+
+        await Mediator.Send(new AddTagToTodoItemCommand(id, tagId));
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/tags/{tagId}")]
+    public async Task<ActionResult> RemoveTag(int id, int tagId)
+    {
+        await Mediator.Send(new RemoveTagFromTodoItemCommand(id, tagId));
+        return NoContent();
+    }
+
+    [HttpGet("{id}/tags")]
+    public async Task<ActionResult<List<TagDto>>> GetTags(int id)
+    {
+        return await Mediator.Send(new GetTagsOfTodoItemQuery(id));
+    }
+
 }

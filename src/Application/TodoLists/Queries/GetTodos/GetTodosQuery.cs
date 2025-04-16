@@ -31,6 +31,9 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 
             Lists = await _context.TodoLists
                 .Where(l => !l.IsDeleted)
+                .Include(l => l.Items)
+                                    .ThenInclude(i => i.TodoItemTags)
+                                        .ThenInclude(tit => tit.Tag)
                 .AsNoTracking()
                 .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
                 .OrderBy(t => t.Title)

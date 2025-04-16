@@ -2,16 +2,24 @@ import { Component, TemplateRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import {
-  TodoListsClient, TodoItemsClient,
-  TodoListDto, TodoItemDto, PriorityLevelDto,
-  CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  TodoListsClient,
+  TodoItemsClient,
+  TodoListDto,
+  TodoItemDto,
+  PriorityLevelDto,
+  CreateTodoListCommand,
+  UpdateTodoListCommand,
+  CreateTodoItemCommand,
+  UpdateTodoItemDetailCommand,
+  TagDto,
+  TagsClient,
+  CreateTagCommand,
 } from '../web-api-client';
 
 @Component({
   selector: 'app-todo-component',
   templateUrl: './todo.component.html',
-  styleUrls: ['./todo.component.scss']
+  styleUrls: ['./todo.component.scss'],
 })
 export class TodoComponent implements OnInit {
   debug = false;
@@ -32,33 +40,59 @@ export class TodoComponent implements OnInit {
     id: [null],
     listId: [null],
     priority: [''],
-    note: ['']
+    note: [''],
   });
 
+  allTags: TagDto[] = [];
+  newTagName: string = '';
+  newTagColor: string = '#6666FF';
+
+  selectedFilterTags: TagDto[] = [];
+  searchText: string = '';
+
+  supportedColors: string[] = [
+    '#FFFFFF',
+    '#FF5733',
+    '#FFC300',
+    '#FFFF66',
+    '#CCFF99',
+    '#6666FF',
+    '#9966CC',
+    '#999999',
+  ];
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private tagsClient: TagsClient,
     private modalService: BsModalService,
-    private fb: FormBuilder
-  ) { }
+    private fb: FormBuilder,
+    private addTagToItemClient: TodoItemsClient,
+    private removeTagFromItemClient: TodoItemsClient
+  ) {}
 
   ngOnInit(): void {
     this.listsClient.get().subscribe(
-      result => {
+      (result) => {
         this.lists = result.lists;
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
         }
       },
-      error => console.error(error)
+      (error) => console.error(error)
     );
+    this.tagsClient.getAllTags().subscribe({
+      next: (tags) => {
+        this.allTags = tags;
+      },
+      error: (error) => console.error(error),
+    });
   }
 
   // Lists
   remainingItems(list: TodoListDto): number {
-    return list.items.filter(t => !t.done).length;
+    return list.items.filter((t) => !t.done).length;
   }
 
   showNewListModal(template: TemplateRef<any>): void {
@@ -75,18 +109,18 @@ export class TodoComponent implements OnInit {
     const list = {
       id: 0,
       title: this.newListEditor.title,
-      items: []
+      items: [],
     } as TodoListDto;
 
     this.listsClient.create(list as CreateTodoListCommand).subscribe(
-      result => {
+      (result) => {
         list.id = result;
         this.lists.push(list);
         this.selectedList = list;
         this.newListModalRef.hide();
         this.newListEditor = {};
       },
-      error => {
+      (error) => {
         const errors = JSON.parse(error.response);
 
         if (errors && errors.Title) {
@@ -101,7 +135,7 @@ export class TodoComponent implements OnInit {
   showListOptionsModal(template: TemplateRef<any>) {
     this.listOptionsEditor = {
       id: this.selectedList.id,
-      title: this.selectedList.title
+      title: this.selectedList.title,
     };
 
     this.listOptionsModalRef = this.modalService.show(template);
@@ -115,7 +149,7 @@ export class TodoComponent implements OnInit {
           this.listOptionsModalRef.hide();
         this.listOptionsEditor = {};
       },
-      error => console.error(error)
+      (error) => console.error(error)
     );
   }
 
@@ -128,10 +162,10 @@ export class TodoComponent implements OnInit {
     this.listsClient.delete(this.selectedList.id).subscribe(
       () => {
         this.deleteListModalRef.hide();
-        this.lists = this.lists.filter(t => t.id !== this.selectedList.id);
+        this.lists = this.lists.filter((t) => t.id !== this.selectedList.id);
         this.selectedList = this.lists.length ? this.lists[0] : null;
       },
-      error => console.error(error)
+      (error) => console.error(error)
     );
   }
 
@@ -142,21 +176,21 @@ export class TodoComponent implements OnInit {
 
     this.itemDetailsModalRef = this.modalService.show(template);
     this.itemDetailsModalRef.onHidden.subscribe(() => {
-        this.stopDeleteCountDown();
+      this.stopDeleteCountDown();
     });
   }
 
   updateItemDetails(): void {
-    const item = new UpdateTodoItemDetailCommand(this.itemDetailsFormGroup.value);
+    const item = new UpdateTodoItemDetailCommand(
+      this.itemDetailsFormGroup.value
+    );
     this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
       () => {
         if (this.selectedItem.listId !== item.listId) {
           this.selectedList.items = this.selectedList.items.filter(
-            i => i.id !== this.selectedItem.id
+            (i) => i.id !== this.selectedItem.id
           );
-          const listIndex = this.lists.findIndex(
-            l => l.id === item.listId
-          );
+          const listIndex = this.lists.findIndex((l) => l.id === item.listId);
           this.selectedItem.listId = item.listId;
           this.lists[listIndex].items.push(this.selectedItem);
         }
@@ -166,7 +200,7 @@ export class TodoComponent implements OnInit {
         this.itemDetailsModalRef.hide();
         this.itemDetailsFormGroup.reset();
       },
-      error => console.error(error)
+      (error) => console.error(error)
     );
   }
 
@@ -176,7 +210,7 @@ export class TodoComponent implements OnInit {
       listId: this.selectedList.id,
       priority: this.priorityLevels[0].value,
       title: '',
-      done: false
+      done: false,
     } as TodoItemDto;
 
     this.selectedList.items.push(item);
@@ -200,18 +234,19 @@ export class TodoComponent implements OnInit {
     if (item.id === 0) {
       this.itemsClient
         .create({
-          ...item, listId: this.selectedList.id
+          ...item,
+          listId: this.selectedList.id,
         } as CreateTodoItemCommand)
         .subscribe(
-          result => {
+          (result) => {
             item.id = result;
           },
-          error => console.error(error)
+          (error) => console.error(error)
         );
     } else {
       this.itemsClient.update(item.id, item).subscribe(
         () => console.log('Update succeeded.'),
-        error => console.error(error)
+        (error) => console.error(error)
       );
     }
 
@@ -248,10 +283,10 @@ export class TodoComponent implements OnInit {
     } else {
       this.itemsClient.delete(item.id).subscribe(
         () =>
-        (this.selectedList.items = this.selectedList.items.filter(
-          t => t.id !== item.id
-        )),
-        error => console.error(error)
+          (this.selectedList.items = this.selectedList.items.filter(
+            (t) => t.id !== item.id
+          )),
+        (error) => console.error(error)
       );
     }
   }
@@ -260,5 +295,132 @@ export class TodoComponent implements OnInit {
     clearInterval(this.deleteCountDownInterval);
     this.deleteCountDown = 0;
     this.deleting = false;
+  }
+
+  isTagSelected(tag: TagDto): boolean {
+    return this.selectedItem?.tags?.some((t) => t.id === tag.id) ?? false;
+  }
+
+  toggleTag(tag: TagDto): void {
+    if (!this.selectedItem?.tags) return;
+
+    const index = this.selectedItem.tags.findIndex((t) => t.id === tag.id);
+
+    if (index > -1) {
+      this.selectedItem.tags.splice(index, 1);
+
+      this.removeTagFromItemClient
+        .removeTag(this.selectedItem.id, tag.id)
+        .subscribe({
+          next: () => {},
+          error: (err) => console.error(err),
+        });
+    } else {
+      this.selectedItem.tags.push(tag);
+
+      this.addTagToItemClient.addTag(this.selectedItem.id, tag.id).subscribe({
+        next: () => {},
+        error: (err) => console.error(err),
+      });
+    }
+  }
+
+  addNewTag(): void {
+    const trimmed = this.newTagName.trim();
+    if (!trimmed) return;
+
+    const existing = this.allTags.find(
+      (t) => t.name.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (existing) {
+      this.toggleTag(existing);
+    } else {
+      const newTag = CreateTagCommand.fromJS({
+        name: trimmed,
+        color: this.newTagColor,
+      });
+
+      this.tagsClient.create(newTag).subscribe({
+        next: (id) => {
+          const created = TagDto.fromJS({
+            id,
+            name: trimmed,
+            color: this.newTagColor,
+          });
+          this.allTags.push(created);
+          this.selectedItem?.tags?.push(created);
+          this.newTagName = '';
+          this.newTagColor = this.supportedColors.slice(-1)[0] ?? '#6666FF';
+        },
+        error: (err) => console.error(err),
+      });
+    }
+  }
+
+  toggleFilterTag(tag: TagDto): void {
+    const index = this.selectedFilterTags.findIndex((t) => t.id === tag.id);
+    if (index > -1) {
+      this.selectedFilterTags.splice(index, 1);
+    } else {
+      this.selectedFilterTags.push(tag);
+    }
+  }
+
+  get filteredItems(): TodoItemDto[] {
+    if (!this.selectedList?.items) return [];
+
+    let result = this.selectedList.items;
+
+    if (this.selectedFilterTags.length > 0) {
+      result = result.filter((item) =>
+        this.selectedFilterTags.every((tag) =>
+          item.tags?.some((t) => t.id === tag.id)
+        )
+      );
+    }
+
+    if (this.searchText.trim()) {
+      const search = this.searchText.toLowerCase();
+      result = result.filter((item) =>
+        item.title?.toLowerCase().includes(search)
+      );
+    }
+
+    return result;
+  }
+
+  isFilterTagSelected(tag: TagDto): boolean {
+    return this.selectedFilterTags.some((t) => t.id === tag.id);
+  }
+
+  setTagColor(color: string) {
+    this.newTagColor = color;
+  }
+
+  editTagsModalRef: BsModalRef;
+
+  openEditTagsModal(template: TemplateRef<any>) {
+    this.editTagsModalRef = this.modalService.show(template);
+  }
+
+  deleteTag(tag: TagDto): void {
+    this.tagsClient.delete(tag.id!).subscribe({
+      next: () => {
+        this.allTags = this.allTags.filter((t) => t.id !== tag.id);
+        this.selectedList.items.forEach((item) => {
+          item.tags = item.tags?.filter((t) => t.id !== tag.id);
+        });
+      },
+      error: (err) => console.error('Delete error:', err),
+    });
+  }
+
+  getContrastingTextColor(bgColor: string): string {
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luma > 150 ? '#000' : '#fff';
   }
 }
