@@ -332,13 +332,50 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
                 {
-                    b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
-                        .WithMany("Items")
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Navigation("List");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Done")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ListId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Reminder")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ListId");
+
+                    b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItemTag", b =>
@@ -358,22 +395,95 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {
-                    b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
-                        {
-                            b1.Property<int>("TodoListId")
-                                .HasColumnType("int");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                            b1.Property<string>("Code")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                            b1.HasKey("TodoListId");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
 
-                            b1.ToTable("TodoLists");
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
-                            b1.WithOwner()
-                                .HasForeignKey("TodoListId");
-                        });
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TodoLists");
+                });
+
+            modelBuilder.Entity("Todo_App.Infrastructure.Identity.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -421,135 +531,114 @@ namespace Todo_App.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("Todo_App.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Todo_App.Infrastructure.Identity.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
-                {
-                    b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
-                        .WithMany("Items")
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
+                    .WithMany("Items")
+                    .HasForeignKey("ListId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("List");
+                b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "BackgroundColour", b1 =>
+                {
+                    b1.Property<int>("TodoItemId")
+                        .HasColumnType("int");
+
+                    b1.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("BackgroundColour");
+
+                    b1.HasKey("TodoItemId");
+
+                    b1.ToTable("TodoItems");
+
+                    b1.WithOwner()
+                        .HasForeignKey("TodoItemId");
                 });
+
+                b.Navigation("BackgroundColour");
+                b.Navigation("List");
+                b.Navigation("TodoItemTags");
+            });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
+            {
+                b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
                 {
-                    b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
-                        {
-                            b1.Property<int>("TodoListId")
-                                .HasColumnType("int");
+                    b1.Property<int>("TodoListId")
+                        .HasColumnType("int");
 
-                            b1.Property<string>("Code")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                    b1.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("TodoListId");
+                    b1.HasKey("TodoListId");
 
-                            b1.ToTable("TodoLists");
+                    b1.ToTable("TodoLists");
 
-                            b1.WithOwner()
-                                .HasForeignKey("TodoListId");
-                        });
-
-                    b.Navigation("Colour")
-                        .IsRequired();
+                    b1.WithOwner()
+                        .HasForeignKey("TodoListId");
                 });
+
+                b.Navigation("Colour")
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.Tag", b =>
+            {
+                b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Color", b1 =>
                 {
-                    b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Color", b1 =>
-                        {
-                            b1.Property<int>("TagId")
-                                .HasColumnType("int");
+                    b1.Property<int>("TagId")
+                        .HasColumnType("int");
 
-                            b1.Property<string>("Code")
-                                .IsRequired()
-                                .HasMaxLength(7)
-                                .HasColumnType("nvarchar(7)")
-                                .HasColumnName("Color");
+                    b1.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)")
+                        .HasColumnName("Color");
 
-                            b1.HasKey("TagId");
+                    b1.HasKey("TagId");
 
-                            b1.ToTable("Tags");
+                    b1.ToTable("Tags");
 
-                            b1.WithOwner()
-                                .HasForeignKey("TagId");
-                        });
-
-                    b.Navigation("Color")
-                        .IsRequired();
+                    b1.WithOwner()
+                        .HasForeignKey("TagId");
                 });
 
-            modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
-                {
-                    b.HasOne("Todo_App.Domain.Entities.TodoList", "List")
-                        .WithMany("Items")
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.Navigation("Color")
+                    .IsRequired();
 
-                    b.Navigation("List");
-                });
+                b.Navigation("TodoItemTags");
+            });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoItemTag", b =>
-                {
-                    b.HasOne("Todo_App.Domain.Entities.Tag", "Tag")
-                        .WithMany("TodoItemTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Todo_App.Domain.Entities.Tag", "Tag")
+                    .WithMany("TodoItemTags")
+                    .HasForeignKey("TagId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("Todo_App.Domain.Entities.TodoItem", "TodoItem")
-                        .WithMany("TodoItemTags")
-                        .HasForeignKey("TodoItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("Todo_App.Domain.Entities.TodoItem", "TodoItem")
+                    .WithMany("TodoItemTags")
+                    .HasForeignKey("TodoItemId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Tag");
+                b.Navigation("Tag");
+                b.Navigation("TodoItem");
+            });
 
-                    b.Navigation("TodoItem");
-                });
-
-            modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
-                {
-                    b.OwnsOne("Todo_App.Domain.ValueObjects.Colour", "Colour", b1 =>
-                        {
-                            b1.Property<int>("TodoListId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Code")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("TodoListId");
-
-                            b1.ToTable("TodoLists");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TodoListId");
-                        });
-
-                    b.Navigation("Colour")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Todo_App.Domain.Entities.Tag", b =>
-                {
-                    b.Navigation("TodoItemTags");
-                });
-
-            modelBuilder.Entity("Todo_App.Domain.Entities.TodoItem", b =>
-                {
-                    b.Navigation("TodoItemTags");
-                });
 
             modelBuilder.Entity("Todo_App.Domain.Entities.TodoList", b =>
                 {

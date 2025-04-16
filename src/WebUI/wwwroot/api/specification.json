@@ -727,6 +727,10 @@
           "note": {
             "type": "string",
             "nullable": true
+          },
+          "backgroundColour": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -829,73 +833,76 @@
             "type": "string",
             "nullable": true
           },
+          "backgroundColour": {
+            "type": "string",
+            "nullable": true
+          },
           "tags": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TagDto"
             }
+          },
+
+          "CreateTodoListCommand": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "UpdateTodoListCommand": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "title": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "WeatherForecast": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "temperatureC": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "temperatureF": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "summary": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        },
+        "securitySchemes": {
+          "JWT": {
+            "type": "apiKey",
+            "description": "Type into the textbox: Bearer {your JWT token}.",
+            "name": "Authorization",
+            "in": "header"
           }
         }
       },
-      "CreateTodoListCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
+      "security": [
+        {
+          "JWT": []
         }
-      },
-      "UpdateTodoListCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "WeatherForecast": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "temperatureC": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "summary": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "JWT": {
-        "type": "apiKey",
-        "description": "Type into the textbox: Bearer {your JWT token}.",
-        "name": "Authorization",
-        "in": "header"
-      }
+      ]
     }
-  },
-  "security": [
-    {
-      "JWT": []
-    }
-  ]
-}

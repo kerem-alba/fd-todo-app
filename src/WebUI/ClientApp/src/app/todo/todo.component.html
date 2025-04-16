@@ -86,10 +86,13 @@
       </div>
 
       <ul id="todo-items" class="list-group mb-2">
-        <li
-          class="list-group-item"
-          *ngFor="let item of filteredItems; index as i"
-        >
+  <li
+  class="list-group-item"
+  *ngFor="let item of filteredItems; index as i"
+  [ngStyle]="{ 'background-color': item.backgroundColour }"
+>
+
+
           <div class="d-flex">
             <div class="todo-item-checkbox">
               <input
@@ -235,6 +238,23 @@
           </option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label for="backgroundColour">Background Colour</label>
+        <div class="colour-buttons">
+          <button
+            *ngFor="let color of backgroundColours"
+            type="button"
+            class="colour-btn"
+            [ngClass]="{ selected: selectedColor === color.value }"
+            [style.background-color]="color.value"
+            (click)="selectBackgroundColour(color.value)"
+          >
+            {{ color.name }}
+          </button>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="note">Note</label>
         <textarea
@@ -309,16 +329,16 @@
           {{ deleting ? "Deleting " + deleteCountDown + " ..." : "Delete" }}
         </button>
       </div>
-      <div class="float-end">
-        <button class="btn btn-default" (click)="itemDetailsModalRef.hide()">
-          Cancel
-        </button>
-        <button class="btn btn-primary" (click)="updateItemDetails()">
-          Update
-        </button>
-      </div>
-    </div>
-  </div>
+     <div class="float-end">
+  <button class="btn btn-default" (click)="itemDetailsModalRef.hide()">
+    Cancel
+  </button>
+  <button class="btn btn-primary" (click)="updateItemDetails()">
+    Update
+  </button>
+</div>
+</div>
+</div>
 </ng-template>
 
 <ng-template #editTagsModal>
@@ -353,6 +373,7 @@
     </button>
   </div>
 </ng-template>
+
 
 <ng-template #deleteListModalTemplate>
   <div class="modal-header">

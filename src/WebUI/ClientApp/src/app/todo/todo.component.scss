@@ -1,92 +1,112 @@
 #listOptions {
-  margin-right: 8px;
+    margin-right: 8px;
 }
 
 #todo-items .item-input-control {
-  border: 0;
-  box-shadow: none;
-  background-color: transparent;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 #todo-items .done-todo {
-  text-decoration: line-through;
+    text-decoration: line-through;
 }
 
 #todo-items .todo-item-title {
-  padding-top: 8px;
+    padding-top: 8px;
 }
 
 #todo-items .list-group-item {
-  padding-top: 8px;
-  padding-bottom: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 #todo-items .list-group-item .btn-xs {
-  padding: 0;
+    padding: 0;
 }
 
 #todo-items .todo-item-checkbox {
-  padding-top: 8px;
+    padding-top: 8px;
 }
 
 #todo-items .todo-item-commands {
-  padding-top: 4px;
+    padding-top: 4px;
 }
 
 .modal-footer {
-  display: block;
+    display: block;
+}
+
+.colour-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.colour-btn {
+    width: 80px;
+    border: 1px solid gray;
+    color: black;
+    padding: 0.5rem 0;
+    text-align: center;
+    border-radius: 5px;
+
+    &.selected {
+        border: 2px solid black;
+    }
 }
 
 .todo-item-tags {
-  margin-top: 4px;
+    margin-top: 4px;
 }
 
 .tag-list {
-  margin-top: 4px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .tag-chip {
-  padding: 3px 10px;
-  margin-right: 6px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  display: inline-block;
-  color: #fff;
-  cursor: pointer;
+    padding: 3px 10px;
+    margin-right: 6px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    display: inline-block;
+    color: #fff;
+    cursor: pointer;
 }
 
 .tag-chip-selected {
-  color: #fff;
+    color: #fff;
 }
 
 input.form-control-color {
-  width: 3rem;
-  padding: 0;
-  cursor: pointer;
+    width: 3rem;
+    padding: 0;
+    cursor: pointer;
 }
 
 .tag-color-box {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
 .color-box.selected {
-  border: 3px solid #000;
+    border: 3px solid #000;
 }
 
 .tag-label {
-  min-width: 100px;
+    min-width: 100px;
 }
 
 .color-box {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
 }
